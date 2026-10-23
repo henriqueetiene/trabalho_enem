@@ -28,6 +28,8 @@ trabalho-enem
 
 ## Dados de entrada
 
+As planilhas de sinopse do ENEM foram baixadas do site oficial do Inep, na página [Sinopses Estatísticas do Enem](https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/sinopses-estatisticas/enem), em **20 de outubro de 2026**.
+
 O script lê diretamente o XML interno das planilhas Excel e extrai a célula **D10** das seguintes abas, assumindo que ela contém a média nacional:
 
 | Área | Aba |
