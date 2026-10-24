@@ -11,3 +11,4 @@ wheels/
 
 # Gráficos e CSVs gerados pelo projeto
 /src/trabalho_enem/graficos_enem_por_periodo/
+/graficos_enem_por_periodo/

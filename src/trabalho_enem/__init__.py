@@ -3,10 +3,11 @@
 Gera 15 gráficos: para cada área, período completo (2015–2025),
 pré-popularização (2015–2022) e pós-popularização (2023–2025).
 
-Requisitos: pip install pandas numpy matplotlib
-Execução: python graficos_enem_tendencias_periodos.py
-Coloque as 11 planilhas Sinopse ENEM AAAA.xlsx na mesma pasta do script.
+Execução: trabalho-enem [--saida PASTA]
+As 11 planilhas Sinopse ENEM AAAA.xlsx ficam na pasta do pacote.
+Os resultados são gravados no diretório de execução por padrão.
 """
+import argparse
 from pathlib import Path
 import posixpath
 import re
@@ -21,8 +22,6 @@ import numpy as np
 import pandas as pd
 
 PASTA = Path(__file__).resolve().parent
-SAIDA = PASTA / 'graficos_enem_por_periodo'
-SAIDA.mkdir(exist_ok=True)
 
 ANOS = range(2015, 2026)
 AREAS = {
@@ -64,6 +63,12 @@ def ler_medias_nacionais(caminho, abas):
                     n = int(row.attrib.get('r', 0))
                     if n == 10:
                         cel = next((c for c in row if c.attrib.get('r') == 'D10'), None)
+                        if cel is not None and cel.attrib.get('t', 'n') != 'n':
+                            raise ValueError(
+                                f'Média deve ser uma célula numérica em '
+                                f'{caminho.name}, aba {nome}, D10 '
+                                f'(tipo: {cel.attrib["t"]})'
+                            )
                         valor = cel.find('m:v', ns) if cel is not None else None
                         if valor is None or valor.text is None:
                             raise ValueError(f'Média não encontrada em {caminho.name}, aba {nome}, D10')
@@ -91,7 +96,7 @@ def carregar_dados():
     return pd.DataFrame(registros)
 
 
-def gerar_grafico(serie, area, aba, inicio, fim):
+def gerar_grafico(serie, area, aba, inicio, fim, saida):
     x = serie['Ano'].to_numpy(dtype=float)
     y = serie['Média'].to_numpy(dtype=float)
     if len(x) < 2:
@@ -131,27 +136,34 @@ def gerar_grafico(serie, area, aba, inicio, fim):
     area_normalizada = unicodedata.normalize('NFKD', area).encode('ascii', 'ignore').decode('ascii')
     nome_area = re.sub(r'[^a-z0-9]+', '_', area_normalizada.lower()).strip('_')
     nome = f'grafico_{nome_area}_{inicio}_{fim}.png'
-    fig.savefig(SAIDA / nome, dpi=180)
+    fig.savefig(saida / nome, dpi=180)
     plt.close(fig)
     return inclinacao
 
 
-def main():
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__.split('\n')[0]) # type: ignore
+    parser.add_argument(
+        '--saida', type=Path, default=Path('graficos_enem_por_periodo'),
+        help='Pasta de resultados (padrão: ./graficos_enem_por_periodo).',
+    )
+    saida = parser.parse_args(argv).saida
     dados = carregar_dados()
-    dados.to_csv(SAIDA / 'medias_enem_2015_2025.csv', sep=';', decimal=',',
+    saida.mkdir(parents=True, exist_ok=True)
+    dados.to_csv(saida / 'medias_enem_2015_2025.csv', sep=';', decimal=',',
                  index=False, encoding='utf-8-sig')
     resultados = []
     for area, aba in AREAS.items():
         for inicio, fim in PERIODOS.values():
             serie = dados.loc[(dados['Área'] == area) &
                               dados['Ano'].between(inicio, fim)].sort_values('Ano')
-            inclinacao = gerar_grafico(serie, area, aba, inicio, fim)
+            inclinacao = gerar_grafico(serie, area, aba, inicio, fim, saida)
             resultados.append({'Área': area, 'Período': f'{inicio}–{fim}',
                                'Inclinação (pontos/ano)': inclinacao})
             print(f'{area} | {inicio}–{fim} | Inclinação: {inclinacao:+.2f} pontos/ano')
-    pd.DataFrame(resultados).to_csv(SAIDA / 'inclinacoes_enem_por_periodo.csv',
+    pd.DataFrame(resultados).to_csv(saida / 'inclinacoes_enem_por_periodo.csv',
                                     sep=';', decimal=',', index=False, encoding='utf-8-sig')
-    print(f'\n15 gráficos e 2 arquivos CSV disponíveis em: {SAIDA}')
+    print(f'\n15 gráficos e 2 arquivos CSV disponíveis em: {saida.resolve()}')
 
 
 if __name__ == '__main__':

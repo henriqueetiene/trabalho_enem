@@ -19,6 +19,12 @@ uv sync
 uv run trabalho-enem
 ```
 
+Para escolher outra pasta de resultados:
+
+```bash
+uv run trabalho-enem --saida resultados/enem
+```
+
 Como alternativa, instale e execute com pip:
 
 ```bash
@@ -40,11 +46,11 @@ O script lê diretamente o XML interno das planilhas Excel e extrai a célula **
 | Matemática | `7.4.1` |
 | Redação | `7.5.1` |
 
-A execução é interrompida se faltar uma planilha, uma aba ou uma média válida. Arquivos CSV não são usados como entrada.
+A execução é interrompida se faltar uma planilha, uma aba ou uma média válida. D10 deve ser uma célula numérica: texto (inclusive números armazenados como texto), booleanos e erros são rejeitados para evitar interpretar índices internos do Excel como médias. Arquivos CSV não são usados como entrada.
 
 ## Resultados
 
-Os arquivos são gerados em `src/trabalho_enem/graficos_enem_por_periodo/`:
+Os arquivos são gerados em `graficos_enem_por_periodo/`, dentro do diretório de execução, ou na pasta indicada por `--saida`. A pasta é criada somente ao executar a análise, incluindo diretórios intermediários:
 
 - **15 gráficos PNG**: um para cada combinação de área e período, com as médias observadas, a regressão linear e sua inclinação. Exemplo: `grafico_matematica_2015_2025.png`.
 - **`medias_enem_2015_2025.csv`**: 55 registros com ano, área e média nacional.
