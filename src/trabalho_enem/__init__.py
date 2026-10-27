@@ -96,7 +96,7 @@ def carregar_dados():
     return pd.DataFrame(registros)
 
 
-def gerar_grafico(serie, area, aba, inicio, fim, saida):
+def gerar_grafico(serie, area, inicio, fim, saida):
     x = serie['Ano'].to_numpy(dtype=float)
     y = serie['Média'].to_numpy(dtype=float)
     if len(x) < 2:
@@ -153,11 +153,11 @@ def main(argv=None):
     dados.to_csv(saida / 'medias_enem_2015_2025.csv', sep=';', decimal=',',
                  index=False, encoding='utf-8-sig')
     resultados = []
-    for area, aba in AREAS.items():
+    for area, _ in AREAS.items():
         for inicio, fim in PERIODOS.values():
             serie = dados.loc[(dados['Área'] == area) &
                               dados['Ano'].between(inicio, fim)].sort_values('Ano')
-            inclinacao = gerar_grafico(serie, area, aba, inicio, fim, saida)
+            inclinacao = gerar_grafico(serie, area, inicio, fim, saida)
             resultados.append({'Área': area, 'Período': f'{inicio}–{fim}',
                                'Inclinação (pontos/ano)': inclinacao})
             print(f'{area} | {inicio}–{fim} | Inclinação: {inclinacao:+.2f} pontos/ano')
