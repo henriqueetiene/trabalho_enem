@@ -63,5 +63,3 @@ A pasta de resultados é ignorada pelo Git e pode ser recriada executando o proj
 ## Interpretação
 
 Inclinações positivas indicam tendência de crescimento das médias; negativas indicam queda. Os gráficos do período completo marcam a transição entre 2022 e 2023.
-
-A análise é descritiva: não calcula correlação de Pearson, R² ou significância estatística e não demonstra relações de causa e efeito. O intervalo 2023–2025 contém apenas três observações por área.
